@@ -3,26 +3,42 @@ from flask import request
 from db_query import DbConnection
 import json
 import array
+import re
 
-class Tasks(Resource):
+
+#def check_if_none(pattern, string_):
+ #   return re.match(pattern, string_)
+
+class TasksApi(Resource):
 
    # def get(self,parameter):
     #    return {'hello': parameter}
 
+
     def get(self, info_string):
          # 1d.all  Id.open_tasks  Id.
-         selection_key = info_string.split('.')[0]
-         selection_value = info_string.split('.')[1]
-         data = ' Send me please witch tasks you need to get it '
-         if selection_value == 'all':
+         data=''
+         match_user = r"user='(\w+)"
+         match_status = r"status='(\w+)"
+
+         user_name = re.findall(match_user, info_string)
+         user_status = re.findall(match_status, info_string)
+
+         print(user_name[0])
+         print(user_status[0])
+
+         if (user_name[0] == '0') and (user_status[0] != '0'):
+             data = DbConnection.get_of_staus(user_status[0])
+
+         if (user_name[0] != '0') and (user_status[0] == '0'):
+             data = DbConnection.get_of_creation_editor(user_name[0])
+
+         if (user_name[0] != '0') and (user_status[0] != '0'):
+             data = DbConnection.get_the_tasks_for_the_user(user_name[0], user_status[0])
+
+         if (user_name[0] == '0') and (user_status[0] == '0'):
              data = DbConnection.get_tasklist()
 
-         if (selection_value == 'open_tasks') or (selection_value == 'finished' ) or (selection_value == 'started'):
-             data = DbConnection.get_tasks_status(selection_value)
-
-         if (selection_value == 'MK') or (selection_value == 'MA'):
-             data = DbConnection.get_of_creation_editor(selection_value)
-        # _data = json.loads(data)
          return data
 
 
