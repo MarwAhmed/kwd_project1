@@ -14,7 +14,6 @@ class DbConnection:
     cur = conn.cursor()
 
 
-
     @classmethod
     def get_tasklist(cls):
         cls.cur.execute("SELECT * from tasks")
@@ -31,7 +30,7 @@ class DbConnection:
                     'task_id': row[1],
                     'task_editor': row[2],
                     'task_staus': row[3],
-                    #'task_created_on': row[4],
+                    'task_created_on': str(row[4]),
 
                 }
             )
@@ -41,11 +40,11 @@ class DbConnection:
 
 
     @classmethod
-    def get_tasks_status(cls,status_value):
-        sql= "SELECT * from tasks WHERE task_status = %"
-        val = (status_value,)
-        cls.cur.execute(sql, val)
+    def get_of_staus(cls , status_value):
 
+        sql="SELECT * FROM tasks WHERE task_status = %s"
+        val=(status_value,)
+        cls.cur.execute(sql,val)
         results = cls.cur.fetchall()
 
         data = list()
@@ -57,6 +56,8 @@ class DbConnection:
                     'task_id': row[1],
                     'task_editor': row[2],
                     'task_staus': row[3],
+
+
                 }
             )
 
@@ -100,7 +101,28 @@ class DbConnection:
 
         return data
 
+    @classmethod
+    def get_the_tasks_for_the_user(cls, editor_value,status_value):
 
+        sql = "SELECT * FROM tasks WHERE ((task_status = %s) AND (task_editor = %s ))"
+        val = ( status_value,editor_value  ,)
+        cls.cur.execute(sql, val)
+        results = cls.cur.fetchall()
+
+        data = list()
+
+        for row in results:
+            data.append(
+                {
+                    'task_url': row[0],
+                    'task_id': row[1],
+                    'task_editor': row[2],
+                    'task_staus': row[3],
+
+                }
+            )
+
+        return data
 
     @classmethod
     def update_status(cls,task_id_value,task_status_value):
@@ -111,6 +133,8 @@ class DbConnection:
         cls.conn.commit()
 
 
+
+    #conn.close()
 
     #def get_of_editor(cls):
 
